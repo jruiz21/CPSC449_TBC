@@ -1,0 +1,6 @@
+@TheBorrowedChapter_HostAddress = http://localhost:5097
+
+GET {{TheBorrowedChapter_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
