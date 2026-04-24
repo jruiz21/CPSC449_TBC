@@ -2922,19 +2922,19 @@
     ]
   },
   "packageFolders": {
-    "/Users/sebastianc/.nuget/packages/": {}
+    "/Users/jamesruiz/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/sebastianc/Desktop/The Borrowed Chapter/TheBorrowedChapter/TheBorrowedChapter.csproj",
+      "projectUniqueName": "/Users/jamesruiz/Desktop/CPSC449/CPSC449_TBC/TheBorrowedChapter.csproj",
       "projectName": "TheBorrowedChapter",
-      "projectPath": "/Users/sebastianc/Desktop/The Borrowed Chapter/TheBorrowedChapter/TheBorrowedChapter.csproj",
-      "packagesPath": "/Users/sebastianc/.nuget/packages/",
-      "outputPath": "/Users/sebastianc/Desktop/The Borrowed Chapter/TheBorrowedChapter/obj/",
+      "projectPath": "/Users/jamesruiz/Desktop/CPSC449/CPSC449_TBC/TheBorrowedChapter.csproj",
+      "packagesPath": "/Users/jamesruiz/.nuget/packages/",
+      "outputPath": "/Users/jamesruiz/Desktop/CPSC449/CPSC449_TBC/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/sebastianc/.nuget/NuGet/NuGet.Config"
+        "/Users/jamesruiz/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TheBorrowedChapter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12003ad0e1551c0d0b1689b328a8e65e3cf849d9")]
 [assembly: System.Reflection.AssemblyProductAttribute("TheBorrowedChapter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TheBorrowedChapter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
