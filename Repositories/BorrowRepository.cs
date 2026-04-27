@@ -30,12 +30,18 @@ public class BorrowRepository : IBorrowRepository
             .ToListAsync();
     }
 
-    public Task<bool> HasActiveBorrowAsync(Guid bookId, Guid memberId)
+    public async Task DeleteByBookIdAsync(Guid bookId)
     {
-        return _context.BorrowRecords.AnyAsync(r =>
-            r.BookId == bookId &&
-            r.MemberId == memberId &&
-            r.Status == BorrowStatuses.Borrowed);
+        await _context.BorrowRecords
+            .Where(r => r.BookId == bookId)
+            .ExecuteDeleteAsync();
+    }
+
+    public async Task DeleteByMemberIdAsync(Guid memberId)
+    {
+        await _context.BorrowRecords
+            .Where(r => r.MemberId == memberId)
+            .ExecuteDeleteAsync();
     }
 
     public async Task<BorrowRepositoryResult> BorrowBookAsync(Guid bookId, Guid memberId, DateTime borrowDate)
@@ -45,7 +51,7 @@ public class BorrowRepository : IBorrowRepository
         var alreadyBorrowed = await _context.BorrowRecords.AnyAsync(r =>
             r.BookId == bookId &&
             r.MemberId == memberId &&
-            r.Status == BorrowStatuses.Borrowed);
+            r.Status == BorrowStatus.Borrowed);
 
         if (alreadyBorrowed)
         {
@@ -70,7 +76,7 @@ public class BorrowRepository : IBorrowRepository
             BookId = bookId,
             MemberId = memberId,
             BorrowDate = borrowDate,
-            Status = BorrowStatuses.Borrowed
+            Status = BorrowStatus.Borrowed
         };
 
         _context.BorrowRecords.Add(record);
@@ -91,7 +97,7 @@ public class BorrowRepository : IBorrowRepository
         var record = await _context.BorrowRecords.FirstOrDefaultAsync(r =>
             r.BookId == bookId &&
             r.MemberId == memberId &&
-            r.Status == BorrowStatuses.Borrowed);
+            r.Status == BorrowStatus.Borrowed);
 
         if (record is null)
         {
@@ -99,7 +105,7 @@ public class BorrowRepository : IBorrowRepository
             return new BorrowRepositoryResult { Status = BorrowRepositoryStatus.NotBorrowed };
         }
 
-        record.Status = BorrowStatuses.Returned;
+        record.Status = BorrowStatus.Returned;
         record.ReturnDate = returnDate;
 
         var rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync($@"

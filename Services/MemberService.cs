@@ -7,10 +7,12 @@ namespace TheBorrowedChapter.Services;
 public class MemberService : IMemberService
 {
     private readonly IMemberRepository _repository;
+    private readonly IBorrowRepository _borrowRepository;
 
-    public MemberService(IMemberRepository repository)
+    public MemberService(IMemberRepository repository, IBorrowRepository borrowRepository)
     {
         _repository = repository;
+        _borrowRepository = borrowRepository;
     }
 
     public async Task<IEnumerable<MemberResponse>> GetAllAsync()
@@ -93,6 +95,7 @@ public class MemberService : IMemberService
         if (member == null)
             return MemberResult.Failure(MemberErrorType.NotFound, "Member not found");
 
+        await _borrowRepository.DeleteByMemberIdAsync(id);
         await _repository.DeleteAsync(member);
         return MemberResult.Success(new MemberResponse
         {

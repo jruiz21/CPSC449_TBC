@@ -2,7 +2,7 @@ using TheBorrowedChapter.Dtos;
 
 namespace TheBorrowedChapter.Services;
 
-public enum MemberErrorType { None, NotFound, DuplicateEmail, InvalidData }
+public enum MemberErrorType { None, NotFound, DuplicateEmail, InvalidData, HasBorrowHistory }
 
 public class MemberResult
 {

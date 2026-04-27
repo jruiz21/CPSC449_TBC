@@ -5,7 +5,7 @@ using TheBorrowedChapter.Services;
 namespace TheBorrowedChapter.Controllers;
 
 [ApiController]
-[Route("api/borrow-records")]
+[Route("api/borrows")]
 public class BorrowController : ControllerBase
 {
     private readonly IBorrowService _borrowService;
@@ -32,7 +32,7 @@ public class BorrowController : ControllerBase
         return Ok(records);
     }
 
-    [HttpPost("borrow")]
+    [HttpPost]
     public async Task<ActionResult<BorrowRecordResponse>> BorrowBook([FromBody] BorrowBookRequest request)
     {
         var result = await _borrowService.BorrowBookAsync(request);

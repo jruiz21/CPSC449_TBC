@@ -70,7 +70,13 @@ public class MembersController : ControllerBase
     {
         var result = await _service.DeleteAsync(id);
         if (!result.IsSuccess)
-            return NotFound(new ErrorResponse(result.ErrorMessage!));
+        {
+            return result.ErrorType switch
+            {
+                MemberErrorType.NotFound => NotFound(new ErrorResponse(result.ErrorMessage!)),
+                _ => BadRequest(new ErrorResponse(result.ErrorMessage!))
+            };
+        }
 
         return NoContent();
     }

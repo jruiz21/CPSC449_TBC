@@ -2,7 +2,7 @@ using TheBorrowedChapter.Dtos;
 
 namespace TheBorrowedChapter.Services;
 
-public enum BookErrorType { None, NotFound, DuplicateISBN, InvalidData }
+public enum BookErrorType { None, NotFound, DuplicateISBN, InvalidData, HasBorrowHistory }
 
 public class BookResult
 {

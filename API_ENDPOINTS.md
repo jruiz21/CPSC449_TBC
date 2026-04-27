@@ -16,9 +16,9 @@
 - `PUT /api/members/{id}`
 - `DELETE /api/members/{id}`
 
-## Borrow Records
+## Borrows
 
-- `GET /api/borrow-records`
-- `GET /api/borrow-records/member/{memberId}`
-- `POST /api/borrow-records/borrow`
-- `POST /api/borrow-records/return`
+- `GET /api/borrows`
+- `GET /api/borrows/member/{memberId}`
+- `POST /api/borrows`
+- `POST /api/borrows/return`

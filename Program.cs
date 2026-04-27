@@ -12,10 +12,31 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
     {
-        var errors = context.ModelState.Values
-            .SelectMany(v => v.Errors)
-            .Select(e => e.ErrorMessage)
-            .Where(message => !string.IsNullOrWhiteSpace(message))
+        var fieldErrors = context.ModelState
+            .SelectMany(entry => entry.Value?.Errors.Select(error => new
+            {
+                Field = entry.Key,
+                Message = error.ErrorMessage
+            }) ?? [])
+            .Where(error => !string.IsNullOrWhiteSpace(error.Message))
+            .ToArray();
+
+        var guidFieldError = fieldErrors.FirstOrDefault(error =>
+            error.Message.Contains("could not be converted to System.Guid", StringComparison.OrdinalIgnoreCase));
+
+        if (guidFieldError is not null)
+        {
+            var guidMessage = guidFieldError.Field.EndsWith("MemberId", StringComparison.OrdinalIgnoreCase)
+                ? "MemberId must be a valid GUID."
+                : guidFieldError.Field.EndsWith("BookId", StringComparison.OrdinalIgnoreCase)
+                    ? "BookId must be a valid GUID."
+                    : "One or more IDs are not valid GUID values.";
+
+            return new BadRequestObjectResult(new ErrorResponse(guidMessage));
+        }
+
+        var errors = fieldErrors
+            .Select(error => error.Message)
             .ToArray();
 
         var message = errors.Length > 0
@@ -47,6 +68,18 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.EnsureCreated();
+    db.Database.ExecuteSqlRaw("""
+        CREATE TABLE IF NOT EXISTS Members (
+            Id TEXT NOT NULL CONSTRAINT PK_Members PRIMARY KEY,
+            FullName TEXT NOT NULL,
+            Email TEXT NOT NULL,
+            MembershipDate TEXT NOT NULL
+        );
+        """);
+    db.Database.ExecuteSqlRaw("""
+        CREATE UNIQUE INDEX IF NOT EXISTS IX_Members_Email
+        ON Members (Email);
+        """);
     db.Database.ExecuteSqlRaw("""
         CREATE TABLE IF NOT EXISTS BorrowRecords (
             Id TEXT NOT NULL CONSTRAINT PK_BorrowRecords PRIMARY KEY,

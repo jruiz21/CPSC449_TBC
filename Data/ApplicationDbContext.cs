@@ -32,6 +32,7 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(r => new { r.BookId, r.MemberId, r.Status });
 
             entity.Property(r => r.Status)
+                .HasConversion<string>()
                 .HasMaxLength(20);
 
             entity.HasOne(r => r.Book)
