@@ -10,8 +10,6 @@ public class BookService : IBookService
     private readonly IBookRepository _bookRepository;
     private readonly IMemoryCache _cache;
 
-    private const string AllBooksCacheKey = "books_all";
-    private static string BookCacheKey(Guid id) => $"book_{id}";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
     public BookService(IBookRepository bookRepository, IMemoryCache cache)
@@ -22,19 +20,19 @@ public class BookService : IBookService
 
     public async Task<IEnumerable<BookResponse>> GetAllBooksAsync()
     {
-        if (_cache.TryGetValue(AllBooksCacheKey, out IEnumerable<BookResponse>? cached) && cached is not null)
+        if (_cache.TryGetValue(BookCacheKeys.AllBooks, out IEnumerable<BookResponse>? cached) && cached is not null)
             return cached;
 
         var books = await _bookRepository.GetAllAsync();
         var response = books.Select(ToResponse).ToList();
 
-        _cache.Set(AllBooksCacheKey, response, CacheDuration);
+        _cache.Set(BookCacheKeys.AllBooks, response, CacheDuration);
         return response;
     }
 
     public async Task<BookResponse?> GetBookByIdAsync(Guid id)
     {
-        var cacheKey = BookCacheKey(id);
+        var cacheKey = BookCacheKeys.BookById(id);
         if (_cache.TryGetValue(cacheKey, out BookResponse? cached) && cached is not null)
             return cached;
 
@@ -126,8 +124,8 @@ public class BookService : IBookService
 
     private void InvalidateCache(Guid id)
     {
-        _cache.Remove(AllBooksCacheKey);
-        _cache.Remove(BookCacheKey(id));
+        _cache.Remove(BookCacheKeys.AllBooks);
+        _cache.Remove(BookCacheKeys.BookById(id));
     }
 
     private static BookResponse ToResponse(Book book) => new()
