@@ -8,35 +8,51 @@ namespace TheBorrowedChapter.Services;
 public class BookService : IBookService
 {
     private readonly IBookRepository _bookRepository;
+    private readonly IBorrowRepository _borrowRepository;
     private readonly IMemoryCache _cache;
+    private readonly ILogger<BookService> _logger;
 
-    private const string AllBooksCacheKey = "books_all";
-    private static string BookCacheKey(Guid id) => $"book_{id}";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(10);
 
-    public BookService(IBookRepository bookRepository, IMemoryCache cache)
+    public BookService(
+        IBookRepository bookRepository,
+        IBorrowRepository borrowRepository,
+        IMemoryCache cache,
+        ILogger<BookService> logger)
     {
         _bookRepository = bookRepository;
+        _borrowRepository = borrowRepository;
         _cache = cache;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<BookResponse>> GetAllBooksAsync()
     {
-        if (_cache.TryGetValue(AllBooksCacheKey, out IEnumerable<BookResponse>? cached) && cached is not null)
+        if (_cache.TryGetValue(BookCacheKeys.AllBooks, out IEnumerable<BookResponse>? cached) && cached is not null)
+        {
+            _logger.LogInformation("Cache hit for all books.");
             return cached;
+        }
+
+        _logger.LogInformation("Cache miss for all books. Loading from database.");
 
         var books = await _bookRepository.GetAllAsync();
         var response = books.Select(ToResponse).ToList();
 
-        _cache.Set(AllBooksCacheKey, response, CacheDuration);
+        _cache.Set(BookCacheKeys.AllBooks, response, CacheDuration);
         return response;
     }
 
     public async Task<BookResponse?> GetBookByIdAsync(Guid id)
     {
-        var cacheKey = BookCacheKey(id);
+        var cacheKey = BookCacheKeys.BookById(id);
         if (_cache.TryGetValue(cacheKey, out BookResponse? cached) && cached is not null)
+        {
+            _logger.LogInformation("Cache hit for book {BookId}.", id);
             return cached;
+        }
+
+        _logger.LogInformation("Cache miss for book {BookId}. Loading from database.", id);
 
         var book = await _bookRepository.GetByIdAsync(id);
         if (book is null)
@@ -113,21 +129,22 @@ public class BookService : IBookService
         return BookResult.Success(ToResponse(updated));
     }
 
-    public async Task<bool> DeleteBookAsync(Guid id)
+    public async Task<BookResult> DeleteBookAsync(Guid id)
     {
         var book = await _bookRepository.GetByIdAsync(id);
         if (book is null)
-            return false;
+            return BookResult.Failure(BookErrorType.NotFound, $"Book with id {id} was not found.");
 
+        await _borrowRepository.DeleteByBookIdAsync(id);
         await _bookRepository.DeleteAsync(book);
         InvalidateCache(id);
-        return true;
+        return BookResult.Success(ToResponse(book));
     }
 
     private void InvalidateCache(Guid id)
     {
-        _cache.Remove(AllBooksCacheKey);
-        _cache.Remove(BookCacheKey(id));
+        _cache.Remove(BookCacheKeys.AllBooks);
+        _cache.Remove(BookCacheKeys.BookById(id));
     }
 
     private static BookResponse ToResponse(Book book) => new()

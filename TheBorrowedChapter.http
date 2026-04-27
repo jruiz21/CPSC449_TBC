@@ -1,6 +1,16 @@
 @TheBorrowedChapter_HostAddress = http://localhost:5097
 
-GET {{TheBorrowedChapter_HostAddress}}/weatherforecast/
+GET {{TheBorrowedChapter_HostAddress}}/api/books
+Accept: application/json
+
+###
+
+GET {{TheBorrowedChapter_HostAddress}}/api/members
+Accept: application/json
+
+###
+
+GET {{TheBorrowedChapter_HostAddress}}/api/borrows
 Accept: application/json
 
 ###

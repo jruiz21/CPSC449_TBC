@@ -35,9 +35,6 @@ public class MembersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateMemberRequest dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var result = await _service.CreateAsync(dto);
         if (!result.IsSuccess)
         {
@@ -53,9 +50,6 @@ public class MembersController : ControllerBase
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateMemberRequest dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var result = await _service.UpdateAsync(id, dto);
         if (!result.IsSuccess)
         {
@@ -76,7 +70,13 @@ public class MembersController : ControllerBase
     {
         var result = await _service.DeleteAsync(id);
         if (!result.IsSuccess)
-            return NotFound(new ErrorResponse(result.ErrorMessage!));
+        {
+            return result.ErrorType switch
+            {
+                MemberErrorType.NotFound => NotFound(new ErrorResponse(result.ErrorMessage!)),
+                _ => BadRequest(new ErrorResponse(result.ErrorMessage!))
+            };
+        }
 
         return NoContent();
     }

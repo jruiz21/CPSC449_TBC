@@ -70,9 +70,15 @@ public class BooksController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBook(Guid id)
     {
-        var deleted = await _bookService.DeleteBookAsync(id);
-        if (!deleted)
-            return NotFound(new ErrorResponse($"Book with id {id} was not found."));
+        var result = await _bookService.DeleteBookAsync(id);
+        if (!result.IsSuccess)
+        {
+            return result.ErrorType switch
+            {
+                BookErrorType.NotFound => NotFound(new ErrorResponse(result.ErrorMessage!)),
+                _ => BadRequest(new ErrorResponse(result.ErrorMessage!))
+            };
+        }
 
         return NoContent();
     }
